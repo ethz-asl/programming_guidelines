@@ -14,3 +14,7 @@ the respective auto formatting functionalities.
 ##Auto Formatter for Emacs
 1. Download the [style sheet](https://raw.github.com/ethz-asl/programming_styleguide/master/formatter/emacs_style.el) to some location
 2. Add the file to your emacs path
+
+##Modelines
+kate: replace-tabs off; tab-width 4; indent-width 4; tab-indents true; indent-mode normal
+vim: ts=4:sw=4:noexpandtab
