@@ -1,0 +1,45 @@
+#!/bin/bash
+
+DIR_SRC=$1
+shift
+DIR_DEST=$1
+shift
+
+
+
+if [ -z "$DIR_DEST" -o -n "$1" ]; then
+	echo "USAGE: $0 <SRC_DIR> <DEST_DIR>"
+	exit
+fi
+
+NAME_SRC=$(basename "$DIR_SRC")
+NAME_DEST=$(basename "$DIR_DEST")
+
+echo "Using src name : $NAME_SRC and dest name $NAME_DEST;"
+
+if ! grep -qF "<name>$NAME_SRC</name>" "$DIR_SRC/.project" ; then
+	echo "The src project's name is not $NAME_SRC. Not supported, yet."; 
+	exit -1;
+fi
+
+function listDir() {
+	(cd "$DIR_SRC" && find "$1" 2>/dev/null || true)
+}
+
+for f in .project .cproject $(listDir .settings) $(listDir .csettings); do
+	S="$DIR_SRC/$f"
+	D="$DIR_DEST/$f"
+	if [ -f "$S" ] ;then
+		echo "$S -> $D:"
+		if [ ! -e "$D" ] ; then
+			mkdir -vp "$(dirname ""$D"")"
+			sed  "s#$DIR_SRC#$DIR_DEST#g" "$S" > "$D"
+			sed -i "s#\b$NAME_SRC\b#$NAME_DEST#g" "$D"
+			echo "ok."
+			git --no-pager diff --color-words "$S" "$D"
+		else
+			echo "already exists. skipping."
+		fi
+	fi
+done
+
