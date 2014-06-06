@@ -1,45 +1,76 @@
 #!/bin/bash
 
-DIR_SRC=$1
+PROG_NAME=$0
+
+usage()
+{
+echo "usage: $PROG_NAME {<OPTION>} <SRC_DIR> <DEST_DIR>"
+echo "This script migrates the eclipse configuration files from one project into an other directory: The project candidate."
+echo "For that it will copy the configurations files while exchanging all occurrences of the SRC_DIR with DEST_DIR and all occurrence of SRC_NAME with DEST_NAME."
+echo "SRC_NAME and DEST_NAME are currently assumed to be the names of the SRC_DIR and DEST_DIR respectively."
+echo "OPTIONS:"
+echo -e "\t-h\tShow this message"
+echo -e "\t-f\tForce overwriting existing files"
+}
+
+FORCE=
+while getopts "hf" OPTION
+do
+	case $OPTION in
+		h)
+			usage
+			exit 1
+			;;
+		f)
+			FORCE=y
+			;;
+		?)
+			usage
+			exit
+			;;
+	esac
+done
+
+shift $(($OPTIND-1))
+
+SRC_DIR=${1%\/}
 shift
-DIR_DEST=$1
+DEST_DIR=${1%\/}
 shift
 
 
-
-if [ -z "$DIR_DEST" -o -n "$1" ]; then
-	echo "USAGE: $0 <SRC_DIR> <DEST_DIR>"
-	exit
+if [ -z "$DEST_DIR" -o -n "$1" ]; then
+	usage
+	exit -1;
 fi
 
-NAME_SRC=$(basename "$DIR_SRC")
-NAME_DEST=$(basename "$DIR_DEST")
+SRC_NAME=$(basename "$SRC_DIR")
+DEST_NAME=$(basename "$DEST_DIR")
 
-echo "Using src name : $NAME_SRC and dest name $NAME_DEST;"
+echo "Using SRC_NAME=$SRC_NAME and DEST_NAME=$DEST_NAME."
 
-if ! grep -qF "<name>$NAME_SRC</name>" "$DIR_SRC/.project" ; then
-	echo "The src project's name is not $NAME_SRC. Not supported, yet."; 
+if ! grep -qF "<name>$SRC_NAME</name>" "$SRC_DIR/.project" ; then
+	echo "The src project's name is not $SRC_NAME. Not supported, yet."; 
 	exit -1;
 fi
 
 function listDir() {
-	(cd "$DIR_SRC" && find "$1" 2>/dev/null || true)
+	(cd "$SRC_DIR" && find "$1" 2>/dev/null || true)
 }
 
 for f in .project .cproject $(listDir .settings) $(listDir .csettings); do
-	S="$DIR_SRC/$f"
-	D="$DIR_DEST/$f"
+	S="$SRC_DIR/$f"
+	D="$DEST_DIR/$f"
 	if [ -f "$S" ] ;then
 		echo "$S -> $D:"
-		if [ ! -e "$D" ] ; then
+		if [ "$FORCE" = "y" -o ! -e "$D" ] ; then
 			mkdir -vp "$(dirname ""$D"")"
-			sed  "s#$DIR_SRC#$DIR_DEST#g" "$S" > "$D"
-			sed -i "s#\b$NAME_SRC\b#$NAME_DEST#g" "$D"
+			sed  "s#$SRC_DIR#$DEST_DIR#g" "$S" > "$D"
+			sed -i "s#\b$SRC_NAME\b#$DEST_NAME#g" "$D"
 			echo "ok."
-			git --no-pager diff --color-words "$S" "$D"
+			git --no-pager diff --no-index --color-words "$S" "$D"
 		else
 			echo "already exists. skipping."
 		fi
 	fi
 done
-
