@@ -65,7 +65,7 @@ for f in .project .cproject $(listDir .settings) $(listDir .csettings); do
 		echo "$S -> $D:"
 		if [ "$FORCE" = "y" -o ! -e "$D" ] ; then
 			mkdir -vp "$(dirname "$D")"
-			sed  "s#$SRC_DIR#$DEST_DIR#g" "$S" > "$D"
+			sed  "/name[=>]/!s#$SRC_DIR#$DEST_DIR#g" "$S" > "$D"
 			sed -i "s#\b$SRC_NAME\b#$DEST_NAME#g" "$D"
 			echo "ok."
 			git --no-pager diff --no-index --color-words "$S" "$D"
