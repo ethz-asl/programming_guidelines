@@ -8,6 +8,7 @@ echo "usage: $PROG_NAME {<OPTION>} <SRC_DIR> <DEST_DIR>"
 echo "This script migrates the eclipse configuration files from one project into an other directory: The project candidate."
 echo "For that it will copy the configurations files while exchanging all occurrences of the SRC_DIR with DEST_DIR and all occurrence of SRC_NAME with DEST_NAME."
 echo "SRC_NAME and DEST_NAME are currently assumed to be the names of the SRC_DIR and DEST_DIR respectively."
+echo "Both SRC_DIR and DEST_DIR should be relative to the current working directory but without "../". The working directory should be a folder the catkin workspace's src folder."
 echo "OPTIONS:"
 echo -e "\t-h\tShow this message"
 echo -e "\t-f\tForce overwriting existing files"
@@ -38,6 +39,10 @@ shift
 DEST_DIR=${1%\/}
 shift
 
+if [ "${SRC_DIR%%\.*}" != "${SRC_DIR}" -o "${DEST_DIR%%\.*}" != "${DEST_DIR}" ] ; then
+	echo "Neither SRC_DIR nor DEST_DIR should contain any '.' or '..'. Best is to run the migrator directly from within the catkin workspace's src folder."
+	exit -1;
+fi
 
 if [ -z "$DEST_DIR" -o -n "$1" ]; then
 	usage
