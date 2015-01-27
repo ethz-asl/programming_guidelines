@@ -10,7 +10,7 @@ sudo apt-get install oracle-java8-installer
 wget http://mirror.switch.ch/eclipse/technology/epp/downloads/release/luna/SR1/eclipse-cpp-luna-SR1-linux-gtk-x86_64.tar.gz
 tar -zxvf eclipse-cpp-luna-SR1-linux-gtk-x86_64.tar.gz
 sudo mv eclipse /opt
-sudo chown pascal -R /opt/eclipse/
+sudo chown $USER -R /opt/eclipse/
 sudo ln -s /opt/eclipse/eclipse /usr/sbin/eclipse
 rm eclipse-cpp-luna-SR1-linux-gtk-x86_64.tar.gz
 
