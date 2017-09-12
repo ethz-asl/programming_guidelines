@@ -54,7 +54,7 @@ while (<>){
 		}
 	}
 	elsif($line=~/warning: unused\ parameter/) {
-		my ($status, $file, $lineNr, $name) = ($line =~/^(\[ *\d*%\])? *([^:]*):(\d\d*).*warning: unused parameter ‘(\S*)’/i);
+		my ($status, $file, $lineNr, $name) = ($line =~/^(\[ *\d*%\])? *([^:]*):(\d\d*).*warning: unused parameter [‘?](\S*)[’?]/i);
 		if($file) {
 			$id = "$file:$lineNr:$name";
 			if($ids{$id}) { 
